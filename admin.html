@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🛠️ Admin — Crossword 2026</title>
+  <title>🏆 Participants — Crossword 2026</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -14,7 +14,7 @@
       min-height: 100vh;
     }
     .wrap {
-      max-width: 900px;
+      max-width: 1200px;
       margin: 0 auto;
       background: #fff;
       border-radius: 24px;
@@ -29,16 +29,9 @@
       gap: 12px;
       border-bottom: 3px solid #dce3ec;
       padding-bottom: 14px;
-      margin-bottom: 20px;
+      margin-bottom: 8px;
     }
     h1 { font-size: 24px; color: #1e2b3c; font-weight: 600; }
-    h2 {
-      font-size: 17px;
-      color: #1e3a5f;
-      margin: 22px 0 12px;
-      padding-bottom: 6px;
-      border-bottom: 2px solid #e3eaf3;
-    }
     .sub { font-size: 13px; color: #5a6f84; margin-bottom: 20px; }
 
     button {
@@ -57,82 +50,77 @@
     button:hover { background: #274b78; transform: translateY(-2px); }
     button:active { transform: translateY(2px); box-shadow: 0 0 0 #0f283f; }
     button:disabled { background: #6a7f94; cursor: not-allowed; transform: none; box-shadow: 0 3px 0 #4a5a6a; }
-    button.secondary {
-      background: #6a7f94;
-      box-shadow: 0 3px 0 #4a5a6a;
-    }
-    button.secondary:hover { background: #8398ad; }
 
-    .form-group { margin-bottom: 16px; }
-    .form-group label {
-      display: block;
-      font-weight: 600;
-      color: #1f3857;
-      margin-bottom: 5px;
+    .controls { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; align-items: center; }
+    .controls input {
+      font-family: inherit;
       font-size: 14px;
-    }
-    .form-group input, .form-group select {
-      width: 100%;
-      padding: 11px 15px;
+      padding: 10px 14px;
       border: 2px solid #d7e0eb;
       border-radius: 12px;
-      font-size: 15px;
-      transition: 0.15s;
-      font-family: inherit;
-      background: white;
-    }
-    .form-group input:focus, .form-group select:focus {
+      background: #fff;
       outline: none;
+      transition: 0.15s;
+      flex: 1;
+      min-width: 200px;
+    }
+    .controls input:focus {
       border-color: #1e3a5f;
       box-shadow: 0 0 0 3px rgba(30,58,95,0.15);
     }
-    .form-group small {
-      display: block;
-      font-size: 12px;
-      color: #6b7c92;
-      margin-top: 4px;
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+      gap: 14px;
+      margin-bottom: 20px;
     }
-
-    .row { display: flex; gap: 12px; flex-wrap: wrap; }
-    .row > .form-group { flex: 1; min-width: 200px; }
-
-    .card {
+    .stat {
       background: #f8faff;
-      border: 1px solid #d7e0eb;
-      border-radius: 18px;
-      padding: 18px 20px;
-      margin-bottom: 18px;
+      border: 2px solid #dce5ef;
+      border-radius: 16px;
+      padding: 14px 16px;
     }
+    .stat .label {
+      font-size: 12px;
+      color: #4a5f76;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 4px;
+    }
+    .stat .value { font-size: 26px; font-weight: 700; color: #1e3a5f; }
 
-    .status-badge {
-      display: inline-block;
-      padding: 4px 14px;
-      border-radius: 20px;
-      font-size: 13px;
+    .table-wrap { overflow-x: auto; border-radius: 14px; border: 1px solid #eef2f7; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th {
+      background: #f8faff;
+      padding: 12px 14px;
+      text-align: left;
       font-weight: 700;
-      margin-left: 10px;
+      color: #1f3857;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      border-bottom: 2px solid #dce5ef;
+      position: sticky;
+      top: 0;
     }
-    .status-open { background: #d4edda; color: #155724; }
-    .status-closed { background: #f8d7da; color: #721c24; }
-    .status-soon { background: #fff3cd; color: #856404; }
+    td { padding: 10px 14px; border-bottom: 1px solid #f0f2f5; color: #1f3349; }
+    tr:hover td { background: #fafcff; }
+    tr.rank-1 td { background: #fff8dc; }
+    tr.rank-2 td { background: #f7f7f7; }
+    tr.rank-3 td { background: #fbeee0; }
 
-    .msg {
-      padding: 12px 18px;
-      border-radius: 14px;
-      margin-top: 14px;
-      font-size: 14px;
-      font-weight: 500;
-      display: none;
-    }
-    .msg.success { display: block; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-    .msg.error { display: block; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-    .msg.info { display: block; background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+    .medal { font-size: 17px; margin-right: 4px; }
+    .rank-col { width: 70px; font-weight: 700; color: #1e3a5f; }
 
-    .hidden { display: none !important; }
+    .msg { text-align: center; padding: 40px 20px; color: #5a6f84; font-size: 15px; }
+    .err { background: #ffe0e0; color: #b3363a; padding: 12px 16px; border-radius: 12px; margin: 14px 0; font-size: 14px; }
+    .hidden { display: none; }
 
     .spinner {
       display: inline-block;
-      width: 16px; height: 16px;
+      width: 18px; height: 18px;
       border: 3px solid #eef2f7;
       border-top-color: #1e3a5f;
       border-radius: 50%;
@@ -142,33 +130,7 @@
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
-    th {
-      background: #f8faff;
-      padding: 10px 12px;
-      text-align: left;
-      font-weight: 700;
-      color: #1f3857;
-      font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-      border-bottom: 2px solid #dce5ef;
-    }
-    td { padding: 10px 12px; border-bottom: 1px solid #f0f2f5; color: #1f3349; }
-    tr:hover td { background: #fafcff; }
-    .no-data { text-align: center; color: #6b7c92; padding: 20px; font-style: italic; }
-
-    .time-info {
-      font-size: 13px;
-      color: #4a5f76;
-      margin-top: 8px;
-      padding: 10px 14px;
-      background: #eef2f7;
-      border-radius: 10px;
-      line-height: 1.7;
-    }
-
-    @media (max-width: 600px) {
+    @media (max-width: 700px) {
       body { padding: 10px; }
       .wrap { padding: 18px 14px 24px; }
       h1 { font-size: 18px; }
@@ -180,45 +142,42 @@
 <div class="wrap">
 
   <header>
-    <h1>🛠️ Admin — Crossword 2026</h1>
+    <h1>🏆 Participants — Crossword 2026</h1>
+    <button id="refreshBtn">🔄 Refresh</button>
   </header>
+  <div class="sub">Ranking = highest score first, then fastest time as tie-breaker</div>
 
-  <p class="sub">Manage the crossword time window. Changes take effect immediately.</p>
+  <div class="controls">
+    <input id="searchBox" type="text" placeholder="Search by name or Emp No..." />
+  </div>
 
-  <div id="panelMsg" class="msg"></div>
+  <div class="stats">
+    <div class="stat"><div class="label">Participants</div><div class="value" id="statCount">0</div></div>
+    <div class="stat"><div class="label">Top Score</div><div class="value" id="statTop">—</div></div>
+    <div class="stat"><div class="label">Fastest Time</div><div class="value" id="statFast">—</div></div>
+  </div>
 
-  <!-- ============================================
-       GLOBAL WINDOW SETTINGS
-       ============================================ -->
-  <h2>🌐 Global Window Settings</h2>
-  <div class="card">
-    <div class="row">
-      <div class="form-group">
-        <label for="openTime">Open Time</label>
-        <input type="text" id="openTime" placeholder="2026-09-18 15:30:00">
-        <small>Format: YYYY-MM-DD HH:MM:SS (local time)</small>
-      </div>
-      <div class="form-group">
-        <label for="closeTime">Close Time</label>
-        <input type="text" id="closeTime" placeholder="2026-09-18 19:30:00">
-        <small>Format: YYYY-MM-DD HH:MM:SS (local time)</small>
-      </div>
-    </div>
-    <div class="row">
-      <div class="form-group">
-        <label for="enforce">Enforce Time Window</label>
-        <select id="enforce">
-          <option value="true">Yes — restrict access by time</option>
-          <option value="false">No — always open</option>
-        </select>
-      </div>
-    </div>
-    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;">
-      <button id="saveSettingsBtn">💾 Save Settings</button>
-      <button id="reloadSettingsBtn" class="secondary">🔄 Reload</button>
-      <button id="checkStatusBtn" class="secondary">📊 Check Current Status</button>
-    </div>
-    <div class="time-info" id="statusInfo" style="display:none;"></div>
+  <div id="errBox" class="err hidden"></div>
+  <div id="loadingMsg" class="msg"><span class="spinner"></span> Loading participants...</div>
+
+  <div class="table-wrap hidden" id="tableWrap">
+    <table>
+      <thead>
+        <tr>
+          <th class="rank-col">Rank</th>
+          <th>Name</th>
+          <th>Emp No</th>
+          <th>Designation</th>
+          <th>Mobile</th>
+          <th style="text-align:center;">Score</th>
+          <th style="text-align:center;">Total</th>
+          <th style="text-align:center;">%</th>
+          <th>Duration</th>
+          <th>Submitted At</th>
+        </tr>
+      </thead>
+      <tbody id="lbBody"></tbody>
+    </table>
   </div>
 
 </div>
@@ -227,9 +186,6 @@
   (function() {
     // ===== SAME URL AS index.html =====
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbyyU263GrJRz_zwC_8hl_FBqklyWEJiOAopOnrv6uc_pcQ7r75CsRXuq0v_fnt0LxyMrg/exec';
-
-    // ⚠️ IMPORTANT: Use the same admin key that's in your code.gs (ADMIN_KEY constant)
-    const ADMIN_KEY = 'change-this-secret-key-2026';
 
     // ---- Robust fetch with retry & JSON check ----
     function fetchJSON(url, retries) {
@@ -253,22 +209,97 @@
         });
     }
 
-    // ---- DOM refs ----
-    const panelMsg       = document.getElementById('panelMsg');
-    const openTimeInput  = document.getElementById('openTime');
-    const closeTimeInput = document.getElementById('closeTime');
-    const enforceSelect  = document.getElementById('enforce');
-    const statusInfo     = document.getElementById('statusInfo');
+    let allRows = [];
 
-    // ---- helpers ----
-    function showMsg(text, type) {
-      panelMsg.innerHTML = text;
-      panelMsg.className = 'msg ' + type;
-      panelMsg.style.display = 'block';
+    function loadLeaderboard() {
+      document.getElementById('loadingMsg').classList.remove('hidden');
+      document.getElementById('tableWrap').classList.add('hidden');
+      document.getElementById('errBox').classList.add('hidden');
+      document.getElementById('refreshBtn').disabled = true;
+
+      fetchJSON(GAS_URL + '?action=getLeaderboard&_=' + Date.now())
+        .then(function(data) {
+          if (!data.success) throw new Error(data.error || 'Failed to load');
+          allRows = data.data || [];
+          render();
+          document.getElementById('loadingMsg').classList.add('hidden');
+          document.getElementById('tableWrap').classList.remove('hidden');
+        })
+        .catch(function(err) {
+          document.getElementById('loadingMsg').classList.add('hidden');
+          var box = document.getElementById('errBox');
+          box.textContent = 'Failed to load participants: ' + err.message;
+          box.classList.remove('hidden');
+        })
+        .finally(function() {
+          document.getElementById('refreshBtn').disabled = false;
+        });
     }
-    function hideMsg() {
-      panelMsg.style.display = 'none';
+
+    function render() {
+      var search = document.getElementById('searchBox').value.trim().toLowerCase();
+
+      var rows = allRows.slice();
+
+      if (search) {
+        rows = rows.filter(function(r) {
+          return (r.name || '').toLowerCase().indexOf(search) !== -1
+              || String(r.rollNumber || '').indexOf(search) !== -1;
+        });
+      }
+
+      // Sort: highest score first, then fastest duration
+      rows.sort(function(a, b) {
+        if (b.score !== a.score) return b.score - a.score;
+        return (a.durationSeconds || 0) - (b.durationSeconds || 0);
+      });
+
+      document.getElementById('statCount').textContent = rows.length;
+      if (rows.length) {
+        document.getElementById('statTop').textContent = rows[0].score;
+        var fastest = rows.reduce(function(min, r) {
+          return (r.durationSeconds || 9999) < (min.durationSeconds || 9999) ? r : min;
+        }, rows[0]);
+        document.getElementById('statFast').textContent = fastest.duration || '—';
+      } else {
+        document.getElementById('statTop').textContent = '—';
+        document.getElementById('statFast').textContent = '—';
+      }
+
+      var tbody = document.getElementById('lbBody');
+      tbody.innerHTML = '';
+
+      if (!rows.length) {
+        var trEmpty = document.createElement('tr');
+        trEmpty.innerHTML = '<td colspan="10" class="msg">No participants yet.</td>';
+        tbody.appendChild(trEmpty);
+        return;
+      }
+
+      rows.forEach(function(r, idx) {
+        var rank = idx + 1;
+        var tr = document.createElement('tr');
+        if (rank === 1) tr.className = 'rank-1';
+        if (rank === 2) tr.className = 'rank-2';
+        if (rank === 3) tr.className = 'rank-3';
+
+        var medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+
+        tr.innerHTML =
+          '<td class="rank-col">' + rank + ' <span class="medal">' + medal + '</span></td>' +
+          '<td>' + esc(r.name) + '</td>' +
+          '<td>' + esc(r.rollNumber) + '</td>' +
+          '<td>' + esc(r.designation) + '</td>' +
+          '<td>' + esc(r.mobile) + '</td>' +
+          '<td style="text-align:center;font-weight:700;color:#1e3a5f;">' + (r.score || 0) + '</td>' +
+          '<td style="text-align:center;">' + (r.totalLetters || 0) + '</td>' +
+          '<td style="text-align:center;">' + (r.percentage || 0) + '%</td>' +
+          '<td>' + esc(r.duration || '—') + '</td>' +
+          '<td style="font-size:12px;color:#5a6f84;">' + esc(r.timestamp || '—') + '</td>';
+        tbody.appendChild(tr);
+      });
     }
+
     function esc(s) {
       return String(s == null ? '' : s)
         .replace(/&/g, '&amp;')
@@ -277,119 +308,14 @@
         .replace(/"/g, '&quot;');
     }
 
-    // ============================================
-    // LOAD SETTINGS ON PAGE LOAD
-    // ============================================
-    function loadSettings() {
-      hideMsg();
-      fetchJSON(GAS_URL + '?action=adminGetSettings&key=' + encodeURIComponent(ADMIN_KEY) + '&_=' + Date.now())
-        .then(function(data) {
-          if (!data.success) throw new Error(data.error || 'Failed to load');
-          applySettings(data.settings || {});
-          showMsg('✅ Settings loaded.', 'success');
-          setTimeout(hideMsg, 2000);
-        })
-        .catch(function(err) {
-          showMsg('❌ ' + err.message, 'error');
-        });
-    }
+    document.getElementById('refreshBtn').addEventListener('click', loadLeaderboard);
+    document.getElementById('searchBox').addEventListener('input', render);
 
-    function applySettings(settings) {
-      openTimeInput.value  = settings.openTime  || '';
-      closeTimeInput.value = settings.closeTime || '';
-      enforceSelect.value  = String(settings.enforce) === 'true' ? 'true' : 'false';
-    }
+    // Auto-refresh every 30 seconds
+    setInterval(loadLeaderboard, 30000);
 
-    // ============================================
-    // SAVE SETTINGS
-    // ============================================
-    function saveSettings() {
-      var openTime  = openTimeInput.value.trim();
-      var closeTime = closeTimeInput.value.trim();
-      var enforce   = enforceSelect.value;
-
-      if (!openTime || !closeTime) {
-        showMsg('❌ Both Open Time and Close Time are required.', 'error');
-        return;
-      }
-
-      var url = GAS_URL + '?action=adminSetSettings'
-              + '&key=' + encodeURIComponent(ADMIN_KEY)
-              + '&openTime='  + encodeURIComponent(openTime)
-              + '&closeTime=' + encodeURIComponent(closeTime)
-              + '&enforce='   + encodeURIComponent(enforce)
-              + '&_=' + Date.now();
-
-      showMsg('<span class="spinner"></span> Saving settings...', 'info');
-
-      fetchJSON(url)
-        .then(function(data) {
-          if (!data.success) throw new Error(data.error || 'Save failed');
-          applySettings(data.settings || {});
-          showMsg('✅ Settings saved successfully.', 'success');
-          setTimeout(hideMsg, 2500);
-        })
-        .catch(function(err) {
-          showMsg('❌ ' + err.message, 'error');
-        });
-    }
-
-    // ============================================
-    // CHECK CURRENT STATUS
-    // ============================================
-    function checkStatus() {
-      hideMsg();
-      fetchJSON(GAS_URL + '?action=getWindowStatus&_=' + Date.now())
-        .then(function(data) {
-          if (!data.success) throw new Error(data.error || 'Failed');
-          var state, cls;
-          if (!data.enforced) {
-            state = 'Disabled (always open)'; cls = 'status-soon';
-          } else if (data.open && data.reason === 'open') {
-            state = 'OPEN'; cls = 'status-open';
-          } else if (data.reason === 'not_started') {
-            state = 'Not started yet'; cls = 'status-soon';
-          } else if (data.reason === 'closed') {
-            state = 'CLOSED'; cls = 'status-closed';
-          } else {
-            state = data.reason || 'Unknown'; cls = 'status-soon';
-          }
-
-          var html = '📊 <strong>Current Status:</strong> <span class="status-badge ' + cls + '">' + esc(state) + '</span>';
-          html += '<br>🕐 Open Time: <strong>' + esc(data.openTime || '—') + '</strong>';
-          html += '<br>🕐 Close Time: <strong>' + esc(data.closeTime || '—') + '</strong>';
-          if (data.secondsToOpen > 0) {
-            html += '<br>⏳ Opens in: <strong>' + formatSecs(data.secondsToOpen) + '</strong>';
-          }
-          if (data.secondsToClose > 0) {
-            html += '<br>⏳ Closes in: <strong>' + formatSecs(data.secondsToClose) + '</strong>';
-          }
-          statusInfo.innerHTML = html;
-          statusInfo.style.display = 'block';
-        })
-        .catch(function(err) {
-          showMsg('❌ ' + err.message, 'error');
-        });
-    }
-
-    function formatSecs(s) {
-      var h = Math.floor(s / 3600);
-      var m = Math.floor((s % 3600) / 60);
-      var sec = s % 60;
-      return (h > 0 ? h + 'h ' : '') + m + 'm ' + sec + 's';
-    }
-
-    // ============================================
-    // EVENT BINDINGS
-    // ============================================
-    document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
-    document.getElementById('reloadSettingsBtn').addEventListener('click', loadSettings);
-    document.getElementById('checkStatusBtn').addEventListener('click', checkStatus);
-
-    // ============================================
-    // AUTO-LOAD ON STARTUP
-    // ============================================
-    loadSettings();
+    // Initial load
+    loadLeaderboard();
 
   })();
 </script>
