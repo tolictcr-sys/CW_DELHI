@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🛠️ Admin — Crossword 2026</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      background: #f0f2f5;
+      color: #1e2b3c;
+      padding: 24px;
+      min-height: 100vh;
+    }
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+      padding: 26px 28px 34px;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      border-bottom: 3px solid #dce3ec;
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+    }
+    h1 { font-size: 24px; color: #1e2b3c; font-weight: 600; }
+    h2 {
+      font-size: 17px;
+      color: #1e3a5f;
+      margin: 22px 0 12px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #e3eaf3;
+    }
+    .sub { font-size: 13px; color: #5a6f84; margin-bottom: 20px; }
+
+    button {
+      font-family: inherit;
+      font-weight: 600;
+      font-size: 14px;
+      padding: 10px 22px;
+      border: none;
+      border-radius: 30px;
+      background: #1e3a5f;
+      color: #fff;
+      cursor: pointer;
+      transition: 0.15s;
+      box-shadow: 0 3px 0 #0f283f;
+    }
+    button:hover { background: #274b78; transform: translateY(-2px); }
+    button:active { transform: translateY(2px); box-shadow: 0 0 0 #0f283f; }
+    button:disabled { background: #6a7f94; cursor: not-allowed; transform: none; box-shadow: 0 3px 0 #4a5a6a; }
+    button.secondary {
+      background: #6a7f94;
+      box-shadow: 0 3px 0 #4a5a6a;
+    }
+    button.secondary:hover { background: #8398ad; }
+
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block;
+      font-weight: 600;
+      color: #1f3857;
+      margin-bottom: 5px;
+      font-size: 14px;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 11px 15px;
+      border: 2px solid #d7e0eb;
+      border-radius: 12px;
+      font-size: 15px;
+      transition: 0.15s;
+      font-family: inherit;
+      background: white;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #1e3a5f;
+      box-shadow: 0 0 0 3px rgba(30,58,95,0.15);
+    }
+    .form-group small {
+      display: block;
+      font-size: 12px;
+      color: #6b7c92;
+      margin-top: 4px;
+    }
+
+    .row { display: flex; gap: 12px; flex-wrap: wrap; }
+    .row > .form-group { flex: 1; min-width: 200px; }
+
+    .card {
+      background: #f8faff;
+      border: 1px solid #d7e0eb;
+      border-radius: 18px;
+      padding: 18px 20px;
+      margin-bottom: 18px;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      margin-left: 10px;
+    }
+    .status-open { background: #d4edda; color: #155724; }
+    .status-closed { background: #f8d7da; color: #721c24; }
+    .status-soon { background: #fff3cd; color: #856404; }
+
+    .msg {
+      padding: 12px 18px;
+      border-radius: 14px;
+      margin-top: 14px;
+      font-size: 14px;
+      font-weight: 500;
+      display: none;
+    }
+    .msg.success { display: block; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .msg.error { display: block; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+    .msg.info { display: block; background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+
+    .hidden { display: none !important; }
+
+    .spinner {
+      display: inline-block;
+      width: 16px; height: 16px;
+      border: 3px solid #eef2f7;
+      border-top-color: #1e3a5f;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    table { width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px; }
+    th {
+      background: #f8faff;
+      padding: 10px 12px;
+      text-align: left;
+      font-weight: 700;
+      color: #1f3857;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      border-bottom: 2px solid #dce5ef;
+    }
+    td { padding: 10px 12px; border-bottom: 1px solid #f0f2f5; color: #1f3349; }
+    tr:hover td { background: #fafcff; }
+    .no-data { text-align: center; color: #6b7c92; padding: 20px; font-style: italic; }
+
+    .time-info {
+      font-size: 13px;
+      color: #4a5f76;
+      margin-top: 8px;
+      padding: 10px 14px;
+      background: #eef2f7;
+      border-radius: 10px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .wrap { padding: 18px 14px 24px; }
+      h1 { font-size: 18px; }
+      th, td { padding: 8px 8px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>🛠️ Admin — Crossword 2026</h1>
+  </header>
+
+  <p class="sub">Manage the crossword time window. Changes take effect immediately.</p>
+
+  <div id="panelMsg" class="msg"></div>
+
+  <!-- ============================================
+       GLOBAL WINDOW SETTINGS
+       ============================================ -->
+  <h2>🌐 Global Window Settings</h2>
+  <div class="card">
+    <div class="row">
+      <div class="form-group">
+        <label for="openTime">Open Time</label>
+        <input type="text" id="openTime" placeholder="2026-09-18 15:30:00">
+        <small>Format: YYYY-MM-DD HH:MM:SS (local time)</small>
+      </div>
+      <div class="form-group">
+        <label for="closeTime">Close Time</label>
+        <input type="text" id="closeTime" placeholder="2026-09-18 19:30:00">
+        <small>Format: YYYY-MM-DD HH:MM:SS (local time)</small>
+      </div>
+    </div>
+    <div class="row">
+      <div class="form-group">
+        <label for="enforce">Enforce Time Window</label>
+        <select id="enforce">
+          <option value="true">Yes — restrict access by time</option>
+          <option value="false">No — always open</option>
+        </select>
+      </div>
+    </div>
+    <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:6px;">
+      <button id="saveSettingsBtn">💾 Save Settings</button>
+      <button id="reloadSettingsBtn" class="secondary">🔄 Reload</button>
+      <button id="checkStatusBtn" class="secondary">📊 Check Current Status</button>
+    </div>
+    <div class="time-info" id="statusInfo" style="display:none;"></div>
+  </div>
+
+</div>
+
+<script>
+  (function() {
+    // ===== SAME URL AS index.html =====
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbyyU263GrJRz_zwC_8hl_FBqklyWEJiOAopOnrv6uc_pcQ7r75CsRXuq0v_fnt0LxyMrg/exec';
+
+    // ⚠️ IMPORTANT: Use the same admin key that's in your code.gs (ADMIN_KEY constant)
+    const ADMIN_KEY = 'change-this-secret-key-2026';
+
+    // ---- Robust fetch with retry & JSON check ----
+    function fetchJSON(url, retries) {
+      if (typeof retries === 'undefined') retries = 3;
+      return fetch(url, { cache: 'no-store', redirect: 'follow' })
+        .then(function(r) {
+          var ct = (r.headers.get('content-type') || '').toLowerCase();
+          if (ct.indexOf('application/json') === -1) {
+            return r.text().then(function(txt) {
+              throw new Error('Non-JSON response: ' + txt.substring(0, 80));
+            });
+          }
+          return r.json();
+        })
+        .catch(function(err) {
+          if (retries > 0) {
+            return new Promise(function(res) { setTimeout(res, 500); })
+              .then(function() { return fetchJSON(url, retries - 1); });
+          }
+          throw err;
+        });
+    }
+
+    // ---- DOM refs ----
+    const panelMsg       = document.getElementById('panelMsg');
+    const openTimeInput  = document.getElementById('openTime');
+    const closeTimeInput = document.getElementById('closeTime');
+    const enforceSelect  = document.getElementById('enforce');
+    const statusInfo     = document.getElementById('statusInfo');
+
+    // ---- helpers ----
+    function showMsg(text, type) {
+      panelMsg.innerHTML = text;
+      panelMsg.className = 'msg ' + type;
+      panelMsg.style.display = 'block';
+    }
+    function hideMsg() {
+      panelMsg.style.display = 'none';
+    }
+    function esc(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // ============================================
+    // LOAD SETTINGS ON PAGE LOAD
+    // ============================================
+    function loadSettings() {
+      hideMsg();
+      fetchJSON(GAS_URL + '?action=adminGetSettings&key=' + encodeURIComponent(ADMIN_KEY) + '&_=' + Date.now())
+        .then(function(data) {
+          if (!data.success) throw new Error(data.error || 'Failed to load');
+          applySettings(data.settings || {});
+          showMsg('✅ Settings loaded.', 'success');
+          setTimeout(hideMsg, 2000);
+        })
+        .catch(function(err) {
+          showMsg('❌ ' + err.message, 'error');
+        });
+    }
+
+    function applySettings(settings) {
+      openTimeInput.value  = settings.openTime  || '';
+      closeTimeInput.value = settings.closeTime || '';
+      enforceSelect.value  = String(settings.enforce) === 'true' ? 'true' : 'false';
+    }
+
+    // ============================================
+    // SAVE SETTINGS
+    // ============================================
+    function saveSettings() {
+      var openTime  = openTimeInput.value.trim();
+      var closeTime = closeTimeInput.value.trim();
+      var enforce   = enforceSelect.value;
+
+      if (!openTime || !closeTime) {
+        showMsg('❌ Both Open Time and Close Time are required.', 'error');
+        return;
+      }
+
+      var url = GAS_URL + '?action=adminSetSettings'
+              + '&key=' + encodeURIComponent(ADMIN_KEY)
+              + '&openTime='  + encodeURIComponent(openTime)
+              + '&closeTime=' + encodeURIComponent(closeTime)
+              + '&enforce='   + encodeURIComponent(enforce)
+              + '&_=' + Date.now();
+
+      showMsg('<span class="spinner"></span> Saving settings...', 'info');
+
+      fetchJSON(url)
+        .then(function(data) {
+          if (!data.success) throw new Error(data.error || 'Save failed');
+          applySettings(data.settings || {});
+          showMsg('✅ Settings saved successfully.', 'success');
+          setTimeout(hideMsg, 2500);
+        })
+        .catch(function(err) {
+          showMsg('❌ ' + err.message, 'error');
+        });
+    }
+
+    // ============================================
+    // CHECK CURRENT STATUS
+    // ============================================
+    function checkStatus() {
+      hideMsg();
+      fetchJSON(GAS_URL + '?action=getWindowStatus&_=' + Date.now())
+        .then(function(data) {
+          if (!data.success) throw new Error(data.error || 'Failed');
+          var state, cls;
+          if (!data.enforced) {
+            state = 'Disabled (always open)'; cls = 'status-soon';
+          } else if (data.open && data.reason === 'open') {
+            state = 'OPEN'; cls = 'status-open';
+          } else if (data.reason === 'not_started') {
+            state = 'Not started yet'; cls = 'status-soon';
+          } else if (data.reason === 'closed') {
+            state = 'CLOSED'; cls = 'status-closed';
+          } else {
+            state = data.reason || 'Unknown'; cls = 'status-soon';
+          }
+
+          var html = '📊 <strong>Current Status:</strong> <span class="status-badge ' + cls + '">' + esc(state) + '</span>';
+          html += '<br>🕐 Open Time: <strong>' + esc(data.openTime || '—') + '</strong>';
+          html += '<br>🕐 Close Time: <strong>' + esc(data.closeTime || '—') + '</strong>';
+          if (data.secondsToOpen > 0) {
+            html += '<br>⏳ Opens in: <strong>' + formatSecs(data.secondsToOpen) + '</strong>';
+          }
+          if (data.secondsToClose > 0) {
+            html += '<br>⏳ Closes in: <strong>' + formatSecs(data.secondsToClose) + '</strong>';
+          }
+          statusInfo.innerHTML = html;
+          statusInfo.style.display = 'block';
+        })
+        .catch(function(err) {
+          showMsg('❌ ' + err.message, 'error');
+        });
+    }
+
+    function formatSecs(s) {
+      var h = Math.floor(s / 3600);
+      var m = Math.floor((s % 3600) / 60);
+      var sec = s % 60;
+      return (h > 0 ? h + 'h ' : '') + m + 'm ' + sec + 's';
+    }
+
+    // ============================================
+    // EVENT BINDINGS
+    // ============================================
+    document.getElementById('saveSettingsBtn').addEventListener('click', saveSettings);
+    document.getElementById('reloadSettingsBtn').addEventListener('click', loadSettings);
+    document.getElementById('checkStatusBtn').addEventListener('click', checkStatus);
+
+    // ============================================
+    // AUTO-LOAD ON STARTUP
+    // ============================================
+    loadSettings();
+
+  })();
+</script>
+</body>
+</html>
