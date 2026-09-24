@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🧩 शब्द पहेली (नया)</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #f0f2f5;
+      font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .container { max-width: 960px; width: 100%; }
+
+    /* Login */
+    #loginPage {
+      background: white;
+      border-radius: 30px;
+      padding: 40px 35px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    #loginPage h1 { font-size: 28px; color: #1e2b3c; text-align: center; margin-bottom: 5px; }
+    #loginPage .sub { text-align: center; color: #5a6f84; margin-bottom: 25px; font-size: 14px; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-weight: 600; color: #1f3857; margin-bottom: 5px; font-size: 14px; }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #d7e0eb;
+      border-radius: 12px;
+      font-size: 15px;
+      transition: 0.15s;
+      font-family: inherit;
+      background: white;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: #1e3a5f;
+      box-shadow: 0 0 0 3px rgba(30,58,95,0.15);
+    }
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: #1e3a5f;
+      color: white;
+      border: none;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 18px;
+      cursor: pointer;
+      transition: 0.15s;
+      box-shadow: 0 4px 0 #0f283f;
+      margin-top: 10px;
+    }
+    .btn-login:hover { background: #274b78; transform: translateY(-2px); }
+    .btn-login:active { transform: translateY(4px); box-shadow: 0 0 0 #0f283f; }
+    .btn-login:disabled { background: #6a7f94; cursor: not-allowed; transform: none; box-shadow: 0 4px 0 #4a5a6a; }
+    .error-msg {
+      color: #b3363a;
+      background: #ffe6e6;
+      padding: 10px 15px;
+      border-radius: 10px;
+      font-size: 14px;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* Window banner */
+    #windowBanner {
+      display: none;
+      background: white;
+      border-radius: 30px;
+      padding: 40px 35px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+      max-width: 500px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    #windowBanner h2 { font-size: 22px; color: #1e2b3c; margin-bottom: 15px; }
+    #windowBanner p { color: #4a5f76; font-size: 15px; margin: 8px 0; line-height: 1.5; }
+    #windowBanner .countdown {
+      font-size: 42px; font-weight: 700; color: #1e3a5f;
+      letter-spacing: 3px; margin: 20px 0; font-variant-numeric: tabular-nums;
+    }
+    #windowBanner.closed .countdown { color: #b3363a; }
+    #windowBanner .info { font-size: 13px; color: #6b7c92; margin-top: 15px; border-top: 1px solid #dce5ef; padding-top: 12px; }
+
+    /* Puzzle */
+    #puzzlePage {
+      background: white;
+      border-radius: 30px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+      padding: 25px 20px 30px;
+      display: none;
+    }
+    .header-row {
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; border-bottom: 3px solid #dce3ec;
+      padding-bottom: 10px; margin-bottom: 20px;
+    }
+    .header-row h1 { font-size: 24px; font-weight: 500; color: #1e2b3c; }
+    .header-row .timer {
+      font-size: 28px; font-weight: 700; background: #1e2b3c;
+      color: white; padding: 5px 20px; border-radius: 40px; letter-spacing: 2px;
+    }
+    .user-badge {
+      font-size: 14px; color: #2a4057; background: #eef2f7;
+      padding: 5px 18px; border-radius: 30px; display: inline-block; margin-bottom: 15px;
+    }
+
+    /* Small close-warning banner inside puzzle page */
+    #closeWarning {
+      display: none; background: #fff4e5; border: 1px solid #ffd8a8;
+      color: #8a4b00; padding: 10px 15px; border-radius: 12px;
+      font-size: 14px; margin-bottom: 12px; text-align: center; font-weight: 600;
+    }
+
+    /* Grid */
+    .grid-container {
+      display: grid; grid-template-columns: repeat(8, 1fr);
+      gap: 4px; background: #b7c3d3; border: 4px solid #2c3e50;
+      border-radius: 16px; overflow: hidden; margin-bottom: 20px;
+      box-shadow: 0 6px 0 #1f2a36;
+    }
+    .cell {
+      aspect-ratio: 1/1; background: white; display: flex;
+      align-items: center; justify-content: center;
+      font-size: 22px; font-weight: 500; color: #0a1a2b;
+      position: relative; padding: 2px;
+    }
+    .cell .num {
+      position: absolute; top: 2px; left: 5px;
+      font-size: 10px; font-weight: 700; color: #1d3b5c; opacity: 0.8;
+    }
+    .cell.block { background: #2c3e50; }
+    .cell input {
+      width: 100%; height: 100%; border: none; background: transparent;
+      text-align: center; font-size: 22px; font-weight: 500;
+      color: #0a1a2b; padding: 0; outline: none; font-family: inherit;
+    }
+    .cell input:focus { background: rgba(30,58,95,0.05); }
+    .cell input:disabled { background: #f5f5f5; color: #666; cursor: not-allowed; }
+
+    /* Clues */
+    .clue-section {
+      display: flex; flex-wrap: wrap; gap: 20px 40px;
+      background: #f8faff; padding: 15px 20px; border-radius: 28px;
+      margin: 10px 0 20px; border: 1px solid #d7e0eb;
+    }
+    .clue-col { flex: 1 1 200px; }
+    .clue-col h3 {
+      font-size: 14px; text-transform: uppercase; letter-spacing: 2px;
+      color: #2a4057; border-bottom: 2px solid #cddae9;
+      padding-bottom: 5px; margin-bottom: 8px;
+    }
+    .clue-item {
+      font-size: 13px; padding: 3px 0; display: flex; gap: 8px;
+      border-bottom: 1px dashed #e3eaf3;
+    }
+    .clue-item .clue-no { font-weight: 700; color: #1e3d64; min-width: 26px; }
+    .clue-item .clue-text { color: #1f3349; }
+
+    /* Buttons */
+    .action-bar { display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px; }
+    .btn {
+      border: none; padding: 10px 28px; border-radius: 40px;
+      font-weight: 600; font-size: 15px; cursor: pointer; transition: 0.15s;
+    }
+    .btn-success { background: #1f7b4d; color: white; box-shadow: 0 3px 0 #0f4f2e; }
+    .btn-success:hover { background: #289a60; transform: translateY(-2px); }
+    .btn-success:active { transform: translateY(3px); box-shadow: 0 0 0 #0f4f2e; }
+    .btn-success:disabled { background: #6c8a7a; cursor: not-allowed; transform: none; box-shadow: 0 3px 0 #4a5f52; }
+
+    .status-msg {
+      padding: 12px 18px; border-radius: 16px; margin-top: 15px;
+      display: none; font-weight: 500; text-align: center;
+    }
+    .status-msg.success { display: block; background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+    .status-msg.error { display: block; background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+
+    .footnote {
+      margin-top: 15px; font-size: 12px; color: #4b6079;
+      text-align: right; border-top: 1px solid #dce5ef; padding-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      #loginPage { padding: 25px 20px; }
+      #puzzlePage { padding: 15px 12px; }
+      .cell, .cell input { font-size: 16px; }
+      .header-row h1 { font-size: 18px; }
+      .header-row .timer { font-size: 20px; padding: 3px 14px; }
+      .clue-item { font-size: 12px; }
+      #windowBanner .countdown { font-size: 32px; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Window Banner -->
+  <div id="windowBanner">
+    <h2>🧩 शब्द पहेली</h2>
+    <p id="windowMessage"></p>
+    <div class="countdown" id="windowCountdown"></div>
+    <div class="info" id="windowInfo"></div>
+  </div>
+
+  <!-- Login Page (Module, Office, Mother Tongue removed) -->
+  <div id="loginPage" style="display:none;">
+    <h1>🧩 शब्द पहेली</h1>
+    <p class="sub">व्यक्तिगत प्रतियोगिता · CROSSWORD 2026</p>
+
+    <div class="form-group">
+      <label for="userName">नाम / Name *</label>
+      <input type="text" id="userName" placeholder="अपना नाम लिखें / Enter your name">
+    </div>
+
+    <div class="form-group">
+      <label for="userDesignation">पद / Designation *</label>
+      <input type="text" id="userDesignation" placeholder="Designation">
+    </div>
+
+    <div class="form-group">
+      <label for="userNumber">कर्मचारी संख्या / Emp. Number * <span style="color:#b3363a;font-size:12px;">(7 अंक, अद्वितीय)</span></label>
+      <input type="tel" id="userNumber" placeholder="7-digit Employee Number" maxlength="7">
+    </div>
+
+    <div class="form-group">
+      <label for="userMobile">मोबाइल / Mobile Number *</label>
+      <input type="tel" id="userMobile" placeholder="10-digit mobile" maxlength="10">
+    </div>
+
+    <!-- Module, Office, Mother Tongue fields removed -->
+
+    <div id="loginError" class="error-msg"></div>
+    <button class="btn-login" id="loginBtn">▶ शुरू करें</button>
+  </div>
+
+  <!-- Puzzle Page -->
+  <div id="puzzlePage">
+    <div class="header-row">
+      <h1>🧩 शब्द पहेली</h1>
+      <span class="timer" id="timerDisplay">30:00</span>
+    </div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <span class="user-badge" id="userBadge">👤 </span>
+      <span style="font-size:12px; color:#4a5f76;">व्यक्तिगत · 30 मिनट</span>
+    </div>
+
+    <div id="closeWarning">⏰ <span id="closeWarningText"></span></div>
+
+    <div class="grid-container" id="crosswordGrid"></div>
+
+    <div class="clue-section">
+      <div class="clue-col" id="acrossClues"><h3>▶ आर-पार (Across)</h3></div>
+      <div class="clue-col" id="downClues"><h3>▼ नीचे (Down)</h3></div>
+    </div>
+
+    <div class="action-bar">
+      <button class="btn btn-success" id="submitBtn">📤 सबमिट करें</button>
+    </div>
+    <div id="statusMsg" class="status-msg"></div>
+    <div class="footnote">* समय समाप्त होने पर स्वतः जमा · कर्मचारी संख्या केवल एक बार</div>
+  </div>
+
+</div>
+
+<script>
+  (function() {
+    // ===== YOUR GAS URL =====
+    const GAS_URL = 'https://script.google.com/macros/s/AKfycbyyU263GrJRz_zwC_8hl_FBqklyWEJiOAopOnrv6uc_pcQ7r75CsRXuq0v_fnt0LxyMrg/exec';
+
+    // ============================================
+    // Crossword Data (same as original)
+    // ============================================
+    const clues = {
+      across: [
+        { no: 1, text: "CHANGE (5)", answer: "परिवर्तन" },
+        { no: 2, text: "MATTER (3)", answer: "मामला" },
+        { no: 3, text: "PROFICIENT (3)", answer: "प्रवीण" },
+        { no: 4, text: "ACCORDINGLY (5)", answer: "तदनुसार" },
+        { no: 5, text: "PROOF (3)", answer: "प्रमाण" },
+        { no: 6, text: "STANDARD (3)", answer: "मानक" },
+        { no: 7, text: "APPROVAL (5)", answer: "अनुमोदन" },
+        { no: 15, text: "MORTGAGE (3)", answer: "बंधक" }
+      ],
+      down: [
+        { no: 8, text: "CUSTOM (3)", answer: "रिवाज़" },
+        { no: 9, text: "RENEWAL (5)", answer: "नवीकरण" },
+        { no: 10, text: "PROFIT (2)", answer: "लाभ" },
+        { no: 11, text: "AVERAGE (3)", answer: "औसत" },
+        { no: 12, text: "COMPLIANCE (5)", answer: "अनुपालन" },
+        { no: 13, text: "GENERAL (3)", answer: "सामान्य" },
+        { no: 14, text: "TEMPERATURE (4)", answer: "तापमान" },
+        { no: 4, text: "IMMEDIATE (3)", answer: "तत्काल" },
+        { no: 16, text: "INITIAL (4)", answer: "प्रारंभिक" }
+      ]
+    };
+
+    const solvedGrid = [
+      ['प', 'रि', 'व', 'र्त', 'न', 'मा', 'म', 'ला'],
+      ['औ', 'वा', '', 'प्र', 'वी', 'ण', 'अ', 'भ'],
+      ['स', 'ज़', 'बं', 'ध', 'क', '', 'नु', 'प्रा'],
+      ['त', 'द', 'नु', 'सा', 'र', 'ता', 'पा', 'रं'],
+      ['त्का', '', 'प्र', 'मा', 'ण', 'प', 'ल', 'भि'],
+      ['ल', '', '', 'न्य', '', 'मा', 'न', 'क'],
+      ['', 'अ', 'नु', 'मो', 'द', 'न', '', '']
+    ];
+
+    const numberMap = {
+      '0,0': 1, '0,1': 8, '0,4': 9, '0,5': 2, '0,7': 10,
+      '1,0': 11, '1,3': 3, '1,6': 12,
+      '2,2': 15, '2,7': 16,
+      '3,0': 4, '3,3': 13, '3,5': 14,
+      '4,2': 5,
+      '5,5': 6,
+      '6,1': 7
+    };
+
+    const ROWS = 7, COLS = 8;
+
+    let currentGrid = [];
+    let userName = '', userDesignation = '', userMobile = '', userNumber = '';
+    let userModule = '', userOffice = '', userMotherTongue = ''; // kept empty / unused
+    let timerInterval = null;
+    let timeSeconds = 1800;
+    let isSubmitted = false, isTimerEnded = false;
+
+    let crosswordStartTime = null;
+    let windowCheckTimer = null;
+    let countdownTimer = null;
+    let secondsToClose = 0;
+
+    const windowBanner = document.getElementById('windowBanner');
+    const windowMessage = document.getElementById('windowMessage');
+    const windowCountdown = document.getElementById('windowCountdown');
+    const windowInfo = document.getElementById('windowInfo');
+    const closeWarning = document.getElementById('closeWarning');
+    const closeWarningText = document.getElementById('closeWarningText');
+
+    const loginPage = document.getElementById('loginPage');
+    const puzzlePage = document.getElementById('puzzlePage');
+    const userNameInput = document.getElementById('userName');
+    const userDesignationInput = document.getElementById('userDesignation');
+    const userMobileInput = document.getElementById('userMobile');
+    const userNumberInput = document.getElementById('userNumber');
+    const loginError = document.getElementById('loginError');
+    const loginBtn = document.getElementById('loginBtn');
+    const userBadge = document.getElementById('userBadge');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const gridContainer = document.getElementById('crosswordGrid');
+    const acrossContainer = document.getElementById('acrossClues');
+    const downContainer = document.getElementById('downClues');
+    const submitBtn = document.getElementById('submitBtn');
+    const statusMsg = document.getElementById('statusMsg');
+
+    // ============================================
+    // Window / countdown utilities
+    // ============================================
+    function formatCountdown(seconds) {
+      if (seconds <= 0) return '00:00:00';
+      var h = Math.floor(seconds / 3600);
+      var m = Math.floor((seconds % 3600) / 60);
+      var s = seconds % 60;
+      return [h, m, s].map(function(n) { return String(n).padStart(2, '0'); }).join(':');
+    }
+
+    function fetchWindowStatus(module) {
+      var url = GAS_URL + '?action=getWindowStatus&_=' + Date.now();
+      if (module) url += '&module=' + encodeURIComponent(module);
+      return fetch(url, { cache: 'no-store' }).then(function(r) { return r.json(); });
+    }
+
+    function stopWindowTimers() {
+      if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+    }
+
+    function showWindowBanner(message, countdownText, infoText, isClosed) {
+      windowBanner.style.display = 'block';
+      loginPage.style.display = 'none';
+      puzzlePage.style.display = 'none';
+      windowMessage.textContent = message || '';
+      windowCountdown.textContent = countdownText || '';
+      windowInfo.textContent = infoText || '';
+      windowBanner.classList.toggle('closed', !!isClosed);
+    }
+
+    function hideWindowBanner() {
+      windowBanner.style.display = 'none';
+    }
+
+    function runCountdown(initialSeconds, onTick, onDone) {
+      if (countdownTimer) { clearInterval(countdownTimer); countdownTimer = null; }
+      var remaining = initialSeconds;
+      if (onTick) onTick(remaining);
+      countdownTimer = setInterval(function() {
+        remaining -= 1;
+        if (onTick) onTick(remaining);
+        if (remaining <= 0) {
+          clearInterval(countdownTimer);
+          countdownTimer = null;
+          if (onDone) onDone();
+        }
+      }, 1000);
+    }
+
+    // ============================================
+    // Check window and show appropriate UI
+    // ============================================
+    function updateWindowStatus(module) {
+      stopWindowTimers();
+      return fetchWindowStatus(module).then(function(data) {
+        if (!data || !data.success) {
+          hideWindowBanner();
+          loginPage.style.display = 'block';
+          return;
+        }
+
+        if (data.open) {
+          hideWindowBanner();
+          if (puzzlePage.style.display !== 'block') {
+            loginPage.style.display = 'block';
+          }
+          secondsToClose = data.secondsToClose || 0;
+          updateCloseWarning();
+          if (windowCheckTimer) clearTimeout(windowCheckTimer);
+          if (secondsToClose > 0) {
+            windowCheckTimer = setTimeout(function() {
+              updateWindowStatus(userModule);
+            }, Math.min(30000, (secondsToClose + 2) * 1000));
+          }
+          return;
+        }
+
+        if (data.reason === 'not_started') {
+          var info = 'खुलने का समय: ' + formatLocalDisplay(data.openTime);
+          showWindowBanner(data.message, formatCountdown(data.secondsToOpen), info, false);
+          runCountdown(
+            data.secondsToOpen,
+            function(remaining) { windowCountdown.textContent = formatCountdown(remaining); },
+            function() { updateWindowStatus(userModule); }
+          );
+        } else if (data.reason === 'closed') {
+          var info2 = 'बंद होने का समय: ' + formatLocalDisplay(data.closeTime);
+          showWindowBanner(data.message, '🔒', info2, true);
+        } else {
+          hideWindowBanner();
+          loginPage.style.display = 'block';
+        }
+      }).catch(function(err) {
+        console.error('Window check failed:', err);
+        hideWindowBanner();
+        loginPage.style.display = 'block';
+      });
+    }
+
+    function formatLocalDisplay(str) {
+      if (!str) return '';
+      var m = String(str).match(/^(\d{4})-(\d{2})-(\d{2})[ T](\d{2}):(\d{2})/);
+      if (!m) return str;
+      var d = new Date(parseInt(m[1]), parseInt(m[2]) - 1, parseInt(m[3]),
+                       parseInt(m[4]), parseInt(m[5]));
+      var opts = { day: '2-digit', month: 'short', year: 'numeric',
+                   hour: '2-digit', minute: '2-digit', hour12: true };
+      return d.toLocaleString('en-IN', opts);
+    }
+
+    function updateCloseWarning() {
+      if (secondsToClose > 0 && secondsToClose < 600 && puzzlePage.style.display === 'block' && !isSubmitted) {
+        closeWarning.style.display = 'block';
+        var remaining = secondsToClose;
+        if (closeWarning._timer) clearInterval(closeWarning._timer);
+        var tick = function() {
+          closeWarningText.textContent = 'यह लिंक ' + formatCountdown(remaining) + ' में बंद हो जाएगा';
+          remaining--;
+          if (remaining < 0) {
+            clearInterval(closeWarning._timer);
+            closeWarning._timer = null;
+            closeWarningText.textContent = 'लिंक बंद हो गया। कृपया सबमिट करें।';
+          }
+        };
+        tick();
+        closeWarning._timer = setInterval(tick, 1000);
+      } else {
+        closeWarning.style.display = 'none';
+      }
+    }
+
+    // ============================================
+    // Start crossword on server
+    // ============================================
+    function startCrosswordOnServer(rollNumber, module) {
+      var url = GAS_URL + '?action=startCrossword&_=' + Date.now() + '&rollNumber=' + encodeURIComponent(rollNumber);
+      if (module) url += '&module=' + encodeURIComponent(module);
+      return fetch(url, { cache: 'no-store' }).then(function(r) { return r.json(); });
+    }
+
+    // ============================================
+    // Grid / clues / scoring
+    // ============================================
+    function buildEmptyGrid() {
+      var grid = [];
+      for (var r = 0; r < ROWS; r++) {
+        var row = [];
+        for (var c = 0; c < COLS; c++) {
+          var isBlock = (solvedGrid[r] && solvedGrid[r][c] === '');
+          row.push({
+            value: '',
+            block: isBlock,
+            number: numberMap[r + ',' + c] || null,
+            row: r,
+            col: c
+          });
+        }
+        grid.push(row);
+      }
+      return grid;
+    }
+
+    function renderClues() {
+      acrossContainer.innerHTML = '<h3>▶ आर-पार (Across)</h3>';
+      clues.across.forEach(function(clue) {
+        var div = document.createElement('div');
+        div.className = 'clue-item';
+        div.innerHTML = '<span class="clue-no">' + clue.no + '</span><span class="clue-text">' + clue.text + '</span>';
+        acrossContainer.appendChild(div);
+      });
+      downContainer.innerHTML = '<h3>▼ नीचे (Down)</h3>';
+      clues.down.forEach(function(clue) {
+        var div = document.createElement('div');
+        div.className = 'clue-item';
+        div.innerHTML = '<span class="clue-no">' + clue.no + '</span><span class="clue-text">' + clue.text + '</span>';
+        downContainer.appendChild(div);
+      });
+    }
+
+    function renderGrid() {
+      gridContainer.innerHTML = '';
+      for (var r = 0; r < ROWS; r++) {
+        for (var c = 0; c < COLS; c++) {
+          var cell = currentGrid[r][c];
+          var div = document.createElement('div');
+          div.className = 'cell';
+          if (cell.block) {
+            div.classList.add('block');
+          } else {
+            if (cell.number) {
+              var numSpan = document.createElement('span');
+              numSpan.className = 'num';
+              numSpan.textContent = cell.number;
+              div.appendChild(numSpan);
+            }
+            var input = document.createElement('input');
+            input.type = 'text';
+            input.maxLength = 6;
+            input.value = cell.value || '';
+            input.dataset.row = r;
+            input.dataset.col = c;
+            if (isSubmitted || isTimerEnded) input.disabled = true;
+            input.addEventListener('input', function(e) {
+              if (isSubmitted || isTimerEnded) return;
+              var val = this.value.trim();
+              var row = parseInt(this.dataset.row);
+              var col = parseInt(this.dataset.col);
+              currentGrid[row][col].value = val;
+            });
+            div.appendChild(input);
+          }
+          gridContainer.appendChild(div);
+        }
+      }
+    }
+
+    function calculateScore() {
+      var correct = 0, total = 0;
+      for (var r = 0; r < ROWS; r++) {
+        for (var c = 0; c < COLS; c++) {
+          var cell = currentGrid[r][c];
+          if (!cell.block) {
+            total++;
+            if (cell.value.trim() === (solvedGrid[r][c] || '')) correct++;
+          }
+        }
+      }
+      return { correct: correct, total: total };
+    }
+
+    function showStatus(msg, type) {
+      statusMsg.textContent = msg;
+      statusMsg.className = 'status-msg ' + type;
+      statusMsg.style.display = 'block';
+    }
+
+    function hideStatus() {
+      statusMsg.style.display = 'none';
+    }
+
+    function startTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      timeSeconds = 1800;
+      updateTimerDisplay();
+      timerInterval = setInterval(function() {
+        timeSeconds--;
+        updateTimerDisplay();
+        if (timeSeconds <= 0) {
+          clearInterval(timerInterval);
+          timerInterval = null;
+          isTimerEnded = true;
+          showStatus('⏰ समय समाप्त! स्वतः जमा किया जा रहा है...', 'error');
+          autoSubmit();
+        }
+      }, 1000);
+    }
+
+    function updateTimerDisplay() {
+      var mins = Math.floor(timeSeconds / 60);
+      var secs = timeSeconds % 60;
+      timerDisplay.textContent = (mins < 10 ? '0' : '') + mins + ':' + (secs < 10 ? '0' : '') + secs;
+      timerDisplay.style.color = timeSeconds < 60 ? '#e06060' : 'white';
+    }
+
+    function stopTimer() {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+      }
+    }
+
+    function getElapsedTime() {
+      return 1800 - timeSeconds;
+    }
+
+    function autoSubmit() {
+      if (!isSubmitted) doSubmit(true);
+    }
+
+    // ============================================
+    // Submit
+    // ============================================
+    function doSubmit(isAuto) {
+      if (isSubmitted) return;
+      var score = calculateScore();
+      var elapsed = getElapsedTime();
+      var gridData = [];
+      for (var r = 0; r < ROWS; r++) {
+        var row = [];
+        for (var c = 0; c < COLS; c++) {
+          row.push(currentGrid[r][c].value || '');
+        }
+        gridData.push(row);
+      }
+      var percentage = score.total > 0 ? Math.round((score.correct / score.total) * 100) : 0;
+
+      var payload = {
+        name: userName,
+        number: userNumber,
+        designation: userDesignation,
+        module: userModule || '',
+        office: userOffice || '',
+        mobile: userMobile,
+        motherTongue: userMotherTongue || '',
+        score: score.correct,
+        totalLetters: score.total,
+        duration: elapsed,
+        percent: percentage,
+        auto: isAuto ? 'yes' : 'no',
+        startTime: crosswordStartTime || '',
+        grid: JSON.stringify(gridData)
+      };
+
+      fetch(GAS_URL + '?action=submitCrossword&_=' + Date.now() + '&payload=' + encodeURIComponent(JSON.stringify(payload)), { cache: 'no-store' })
+        .then(function(response) { return response.json(); })
+        .then(function(data) {
+          if (data.success) {
+            isSubmitted = true;
+            stopTimer();
+            submitBtn.disabled = true;
+            var inputs = document.querySelectorAll('#crosswordGrid input');
+            for (var i = 0; i < inputs.length; i++) inputs[i].disabled = true;
+            showStatus('✅ सफलपूर्वक सबमिट कर दिया। हार्दिक शुभकामनाएं !!', 'success');
+            clearGridEntries();
+            closeWarning.style.display = 'none';
+          } else {
+            if (data.reason === 'closed' || data.reason === 'not_started') {
+              isSubmitted = true;
+              stopTimer();
+              submitBtn.disabled = true;
+              var inputs2 = document.querySelectorAll('#crosswordGrid input');
+              for (var j = 0; j < inputs2.length; j++) inputs2[j].disabled = true;
+              showStatus('❌ ' + (data.error || 'लिंक बंद है'), 'error');
+              closeWarning.style.display = 'none';
+            } else {
+              showStatus('❌ जमा करने में त्रुटि: ' + (data.error || 'Unknown'), 'error');
+            }
+          }
+        })
+        .catch(function(err) {
+          showStatus('❌ नेटवर्क त्रुटि: ' + err.message, 'error');
+        });
+    }
+
+    function clearGridEntries() {
+      for (var r = 0; r < ROWS; r++) {
+        for (var c = 0; c < COLS; c++) {
+          var cell = currentGrid[r][c];
+          if (!cell.block) cell.value = '';
+        }
+      }
+      renderGrid();
+    }
+
+    // ============================================
+    // Login (module, office, mother tongue removed)
+    // ============================================
+    function handleLogin() {
+      var name = userNameInput.value.trim();
+      var designation = userDesignationInput.value.trim();
+      var mobile = userMobileInput.value.trim();
+      var num = userNumberInput.value.trim();
+
+      if (!name) {
+        loginError.textContent = 'कृपया अपना नाम भरें। / Please enter your name.';
+        loginError.style.display = 'block';
+        return;
+      }
+      if (!designation) {
+        loginError.textContent = 'कृपया पद भरें। / Please enter your designation.';
+        loginError.style.display = 'block';
+        return;
+      }
+      if (!/^[0-9]{7}$/.test(num)) {
+        loginError.textContent = 'कर्मचारी संख्या ठीक 7 अंकों की होनी चाहिए। / Emp. Number must be exactly 7 digits.';
+        loginError.style.display = 'block';
+        return;
+      }
+      if (!/^[0-9]{10}$/.test(mobile)) {
+        loginError.textContent = 'मोबाइल नंबर ठीक 10 अंकों का होना चाहिए। / Mobile must be exactly 10 digits.';
+        loginError.style.display = 'block';
+        return;
+      }
+
+      loginError.style.display = 'none';
+      loginBtn.disabled = true;
+      loginBtn.textContent = '⏳ चेक कर रहे हैं...';
+
+      // Check duplicate roll number
+      fetch(GAS_URL + '?action=checkRoll&_=' + Date.now() + '&rollNumber=' + encodeURIComponent(num), { cache: 'no-store' })
+        .then(function(response) { return response.json(); })
+        .then(function(result) {
+          if (result.exists) {
+            loginError.textContent = '❌ यह कर्मचारी संख्या पहले से जमा है / This Emp. Number has already been submitted (' + result.name + ')';
+            loginError.style.display = 'block';
+            loginBtn.disabled = false;
+            loginBtn.textContent = '▶ शुरू करें';
+            return;
+          }
+
+          // Check window (no module passed - server will use default or global)
+          return fetchWindowStatus('').then(function(win) {
+            if (!win || !win.success) {
+              throw new Error('Window check failed');
+            }
+            if (!win.open) {
+              updateWindowStatus('');
+              loginBtn.disabled = false;
+              loginBtn.textContent = '▶ शुरू करें';
+              return;
+            }
+
+            // Start crossword on server
+            return startCrosswordOnServer(num, '').then(function(startRes) {
+              if (!startRes || !startRes.success) {
+                loginError.textContent = '❌ ' + (startRes && startRes.error ? startRes.error : 'शुरू नहीं हो सका');
+                loginError.style.display = 'block';
+                loginBtn.disabled = false;
+                loginBtn.textContent = '▶ शुरू करें';
+                return;
+              }
+
+              crosswordStartTime = startRes.startTime || new Date().toISOString();
+
+              // Save user data
+              userName = name;
+              userDesignation = designation;
+              userMobile = mobile;
+              userNumber = num;
+
+              // Keep these empty (not required)
+              userModule = '';
+              userOffice = '';
+              userMotherTongue = '';
+
+              userBadge.innerHTML = '👤 ' + userName + ' (Emp: ' + userNumber + ')';
+
+              currentGrid = buildEmptyGrid();
+              isSubmitted = false;
+              isTimerEnded = false;
+              hideStatus();
+              submitBtn.disabled = false;
+              renderClues();
+              renderGrid();
+
+              loginPage.style.display = 'none';
+              puzzlePage.style.display = 'block';
+
+              startTimer();
+
+              secondsToClose = win.secondsToClose || 0;
+              updateCloseWarning();
+
+              loginBtn.disabled = false;
+              loginBtn.textContent = '▶ शुरू करें';
+            });
+          });
+        })
+        .catch(function(err) {
+          loginError.textContent = '❌ त्रुटि: ' + err.message;
+          loginError.style.display = 'block';
+          loginBtn.disabled = false;
+          loginBtn.textContent = '▶ शुरू करें';
+        });
+    }
+
+    loginBtn.addEventListener('click', handleLogin);
+    userNameInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') handleLogin(); });
+    userNumberInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') handleLogin(); });
+
+    submitBtn.addEventListener('click', function() { doSubmit(false); });
+
+    renderClues();
+
+    // ============================================
+    // Initial: check window on load
+    // ============================================
+    updateWindowStatus();
+
+  })();
+</script>
+</body>
+</html>
