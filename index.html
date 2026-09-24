@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>🧩 शब्द पहेली (नया)</title>
+  <title>🧩 शब्द पहेली</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -114,14 +114,12 @@
       padding: 5px 18px; border-radius: 30px; display: inline-block; margin-bottom: 15px;
     }
 
-    /* Small close-warning banner inside puzzle page */
     #closeWarning {
       display: none; background: #fff4e5; border: 1px solid #ffd8a8;
       color: #8a4b00; padding: 10px 15px; border-radius: 12px;
       font-size: 14px; margin-bottom: 12px; text-align: center; font-weight: 600;
     }
 
-    /* Grid */
     .grid-container {
       display: grid; grid-template-columns: repeat(8, 1fr);
       gap: 4px; background: #b7c3d3; border: 4px solid #2c3e50;
@@ -147,7 +145,6 @@
     .cell input:focus { background: rgba(30,58,95,0.05); }
     .cell input:disabled { background: #f5f5f5; color: #666; cursor: not-allowed; }
 
-    /* Clues */
     .clue-section {
       display: flex; flex-wrap: wrap; gap: 20px 40px;
       background: #f8faff; padding: 15px 20px; border-radius: 28px;
@@ -166,7 +163,6 @@
     .clue-item .clue-no { font-weight: 700; color: #1e3d64; min-width: 26px; }
     .clue-item .clue-text { color: #1f3349; }
 
-    /* Buttons */
     .action-bar { display: flex; justify-content: flex-end; gap: 12px; margin-top: 10px; }
     .btn {
       border: none; padding: 10px 28px; border-radius: 40px;
@@ -237,8 +233,6 @@
       <input type="tel" id="userMobile" placeholder="10-digit mobile" maxlength="10">
     </div>
 
-    <!-- Module, Office, Mother Tongue fields removed -->
-
     <div id="loginError" class="error-msg"></div>
     <button class="btn-login" id="loginBtn">▶ शुरू करें</button>
   </div>
@@ -278,7 +272,31 @@
     const GAS_URL = 'https://script.google.com/macros/s/AKfycbyyU263GrJRz_zwC_8hl_FBqklyWEJiOAopOnrv6uc_pcQ7r75CsRXuq0v_fnt0LxyMrg/exec';
 
     // ============================================
-    // Crossword Data (same as original)
+    // Robust fetch with retry & JSON check
+    // ============================================
+    function fetchJSON(url, retries) {
+      if (typeof retries === 'undefined') retries = 3;
+      return fetch(url, { cache: 'no-store', redirect: 'follow' })
+        .then(function(r) {
+          var ct = (r.headers.get('content-type') || '').toLowerCase();
+          if (ct.indexOf('application/json') === -1) {
+            return r.text().then(function(txt) {
+              throw new Error('Non-JSON response: ' + txt.substring(0, 80));
+            });
+          }
+          return r.json();
+        })
+        .catch(function(err) {
+          if (retries > 0) {
+            return new Promise(function(res) { setTimeout(res, 500); })
+              .then(function() { return fetchJSON(url, retries - 1); });
+          }
+          throw err;
+        });
+    }
+
+    // ============================================
+    // Crossword Data
     // ============================================
     const clues = {
       across: [
@@ -328,7 +346,7 @@
 
     let currentGrid = [];
     let userName = '', userDesignation = '', userMobile = '', userNumber = '';
-    let userModule = '', userOffice = '', userMotherTongue = ''; // kept empty / unused
+    let userModule = '', userOffice = '', userMotherTongue = '';
     let timerInterval = null;
     let timeSeconds = 1800;
     let isSubmitted = false, isTimerEnded = false;
@@ -375,7 +393,7 @@
     function fetchWindowStatus(module) {
       var url = GAS_URL + '?action=getWindowStatus&_=' + Date.now();
       if (module) url += '&module=' + encodeURIComponent(module);
-      return fetch(url, { cache: 'no-store' }).then(function(r) { return r.json(); });
+      return fetchJSON(url);
     }
 
     function stopWindowTimers() {
@@ -456,6 +474,7 @@
         }
       }).catch(function(err) {
         console.error('Window check failed:', err);
+        // On error, show login page anyway (don't block user)
         hideWindowBanner();
         loginPage.style.display = 'block';
       });
@@ -499,7 +518,7 @@
     function startCrosswordOnServer(rollNumber, module) {
       var url = GAS_URL + '?action=startCrossword&_=' + Date.now() + '&rollNumber=' + encodeURIComponent(rollNumber);
       if (module) url += '&module=' + encodeURIComponent(module);
-      return fetch(url, { cache: 'no-store' }).then(function(r) { return r.json(); });
+      return fetchJSON(url);
     }
 
     // ============================================
@@ -675,8 +694,7 @@
         grid: JSON.stringify(gridData)
       };
 
-      fetch(GAS_URL + '?action=submitCrossword&_=' + Date.now() + '&payload=' + encodeURIComponent(JSON.stringify(payload)), { cache: 'no-store' })
-        .then(function(response) { return response.json(); })
+      fetchJSON(GAS_URL + '?action=submitCrossword&_=' + Date.now() + '&payload=' + encodeURIComponent(JSON.stringify(payload)))
         .then(function(data) {
           if (data.success) {
             isSubmitted = true;
@@ -717,7 +735,7 @@
     }
 
     // ============================================
-    // Login (module, office, mother tongue removed)
+    // Login
     // ============================================
     function handleLogin() {
       var name = userNameInput.value.trim();
@@ -750,9 +768,7 @@
       loginBtn.disabled = true;
       loginBtn.textContent = '⏳ चेक कर रहे हैं...';
 
-      // Check duplicate roll number
-      fetch(GAS_URL + '?action=checkRoll&_=' + Date.now() + '&rollNumber=' + encodeURIComponent(num), { cache: 'no-store' })
-        .then(function(response) { return response.json(); })
+      fetchJSON(GAS_URL + '?action=checkRoll&_=' + Date.now() + '&rollNumber=' + encodeURIComponent(num))
         .then(function(result) {
           if (result.exists) {
             loginError.textContent = '❌ यह कर्मचारी संख्या पहले से जमा है / This Emp. Number has already been submitted (' + result.name + ')';
@@ -762,7 +778,6 @@
             return;
           }
 
-          // Check window (no module passed - server will use default or global)
           return fetchWindowStatus('').then(function(win) {
             if (!win || !win.success) {
               throw new Error('Window check failed');
@@ -774,7 +789,6 @@
               return;
             }
 
-            // Start crossword on server
             return startCrosswordOnServer(num, '').then(function(startRes) {
               if (!startRes || !startRes.success) {
                 loginError.textContent = '❌ ' + (startRes && startRes.error ? startRes.error : 'शुरू नहीं हो सका');
@@ -786,13 +800,10 @@
 
               crosswordStartTime = startRes.startTime || new Date().toISOString();
 
-              // Save user data
               userName = name;
               userDesignation = designation;
               userMobile = mobile;
               userNumber = num;
-
-              // Keep these empty (not required)
               userModule = '';
               userOffice = '';
               userMotherTongue = '';
