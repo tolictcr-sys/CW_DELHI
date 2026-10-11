@@ -148,7 +148,7 @@
   <div class="sub">Ranking = highest score first, then fastest time as tie-breaker</div>
 
   <div class="controls">
-    <input id="searchBox" type="text" placeholder="Search by name or Emp No..." />
+    <input id="searchBox" type="text" placeholder="Search by name or mobile..." />
   </div>
 
   <div class="stats">
@@ -166,8 +166,8 @@
         <tr>
           <th class="rank-col">Rank</th>
           <th>Name</th>
-          <th>Emp No</th>
           <th>Designation</th>
+          <th>Organization</th>
           <th>Mobile</th>
           <th style="text-align:center;">Score</th>
           <th style="text-align:center;">Total</th>
@@ -185,9 +185,8 @@
 <script>
   (function() {
     // ===== SAME URL AS index.html =====
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbyyU263GrJRz_zwC_8hl_FBqklyWEJiOAopOnrv6uc_pcQ7r75CsRXuq0v_fnt0LxyMrg/exec';
+    const GAS_URL = 'PASTE_YOUR_GAS_WEB_APP_URL_HERE';
 
-    // ---- Robust fetch with retry & JSON check ----
     function fetchJSON(url, retries) {
       if (typeof retries === 'undefined') retries = 3;
       return fetch(url, { cache: 'no-store', redirect: 'follow' })
@@ -244,11 +243,10 @@
       if (search) {
         rows = rows.filter(function(r) {
           return (r.name || '').toLowerCase().indexOf(search) !== -1
-              || String(r.rollNumber || '').indexOf(search) !== -1;
+              || String(r.mobile || '').indexOf(search) !== -1;
         });
       }
 
-      // Sort: highest score first, then fastest duration
       rows.sort(function(a, b) {
         if (b.score !== a.score) return b.score - a.score;
         return (a.durationSeconds || 0) - (b.durationSeconds || 0);
@@ -288,8 +286,8 @@
         tr.innerHTML =
           '<td class="rank-col">' + rank + ' <span class="medal">' + medal + '</span></td>' +
           '<td>' + esc(r.name) + '</td>' +
-          '<td>' + esc(r.rollNumber) + '</td>' +
           '<td>' + esc(r.designation) + '</td>' +
+          '<td>' + esc(r.organization) + '</td>' +
           '<td>' + esc(r.mobile) + '</td>' +
           '<td style="text-align:center;font-weight:700;color:#1e3a5f;">' + (r.score || 0) + '</td>' +
           '<td style="text-align:center;">' + (r.totalLetters || 0) + '</td>' +
@@ -311,10 +309,8 @@
     document.getElementById('refreshBtn').addEventListener('click', loadLeaderboard);
     document.getElementById('searchBox').addEventListener('input', render);
 
-    // Auto-refresh every 30 seconds
     setInterval(loadLeaderboard, 30000);
 
-    // Initial load
     loadLeaderboard();
 
   })();
