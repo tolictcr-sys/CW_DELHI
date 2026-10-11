@@ -208,7 +208,7 @@
     <div class="info" id="windowInfo"></div>
   </div>
 
-  <!-- Login Page (Module, Office, Mother Tongue removed) -->
+  <!-- Login Page -->
   <div id="loginPage" style="display:none;">
     <h1>🧩 शब्द पहेली</h1>
     <p class="sub">व्यक्तिगत प्रतियोगिता · CROSSWORD 2026</p>
@@ -224,12 +224,12 @@
     </div>
 
     <div class="form-group">
-      <label for="userNumber">कर्मचारी संख्या / Emp. Number * <span style="color:#b3363a;font-size:12px;">(7 अंक, अद्वितीय)</span></label>
-      <input type="tel" id="userNumber" placeholder="7-digit Employee Number" maxlength="7">
+      <label for="userOrganization">संगठन का नाम / Name of the Organization *</label>
+      <input type="text" id="userOrganization" placeholder="Name of the Organization">
     </div>
 
     <div class="form-group">
-      <label for="userMobile">मोबाइल / Mobile Number *</label>
+      <label for="userMobile">मोबाइल / Mobile Number * <span style="color:#b3363a;font-size:12px;">(10 अंक, अद्वितीय)</span></label>
       <input type="tel" id="userMobile" placeholder="10-digit mobile" maxlength="10">
     </div>
 
@@ -261,7 +261,7 @@
       <button class="btn btn-success" id="submitBtn">📤 सबमिट करें</button>
     </div>
     <div id="statusMsg" class="status-msg"></div>
-    <div class="footnote">* समय समाप्त होने पर स्वतः जमा · कर्मचारी संख्या केवल एक बार</div>
+    <div class="footnote">* समय समाप्त होने पर स्वतः जमा · मोबाइल नंबर केवल एक बार</div>
   </div>
 
 </div>
@@ -269,7 +269,7 @@
 <script>
   (function() {
     // ===== YOUR GAS URL =====
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbyyU263GrJRz_zwC_8hl_FBqklyWEJiOAopOnrv6uc_pcQ7r75CsRXuq0v_fnt0LxyMrg/exec';
+    const GAS_URL = 'PASTE_YOUR_GAS_WEB_APP_URL_HERE';
 
     // ============================================
     // Robust fetch with retry & JSON check
@@ -345,7 +345,7 @@
     const ROWS = 7, COLS = 8;
 
     let currentGrid = [];
-    let userName = '', userDesignation = '', userMobile = '', userNumber = '';
+    let userName = '', userDesignation = '', userOrganization = '', userMobile = '';
     let userModule = '', userOffice = '', userMotherTongue = '';
     let timerInterval = null;
     let timeSeconds = 1800;
@@ -367,8 +367,8 @@
     const puzzlePage = document.getElementById('puzzlePage');
     const userNameInput = document.getElementById('userName');
     const userDesignationInput = document.getElementById('userDesignation');
+    const userOrganizationInput = document.getElementById('userOrganization');
     const userMobileInput = document.getElementById('userMobile');
-    const userNumberInput = document.getElementById('userNumber');
     const loginError = document.getElementById('loginError');
     const loginBtn = document.getElementById('loginBtn');
     const userBadge = document.getElementById('userBadge');
@@ -474,7 +474,6 @@
         }
       }).catch(function(err) {
         console.error('Window check failed:', err);
-        // On error, show login page anyway (don't block user)
         hideWindowBanner();
         loginPage.style.display = 'block';
       });
@@ -515,8 +514,8 @@
     // ============================================
     // Start crossword on server
     // ============================================
-    function startCrosswordOnServer(rollNumber, module) {
-      var url = GAS_URL + '?action=startCrossword&_=' + Date.now() + '&rollNumber=' + encodeURIComponent(rollNumber);
+    function startCrosswordOnServer(module) {
+      var url = GAS_URL + '?action=startCrossword&_=' + Date.now();
       if (module) url += '&module=' + encodeURIComponent(module);
       return fetchJSON(url);
     }
@@ -679,8 +678,8 @@
 
       var payload = {
         name: userName,
-        number: userNumber,
         designation: userDesignation,
+        organization: userOrganization || '',
         module: userModule || '',
         office: userOffice || '',
         mobile: userMobile,
@@ -740,8 +739,8 @@
     function handleLogin() {
       var name = userNameInput.value.trim();
       var designation = userDesignationInput.value.trim();
+      var organization = userOrganizationInput.value.trim();
       var mobile = userMobileInput.value.trim();
-      var num = userNumberInput.value.trim();
 
       if (!name) {
         loginError.textContent = 'कृपया अपना नाम भरें। / Please enter your name.';
@@ -753,8 +752,8 @@
         loginError.style.display = 'block';
         return;
       }
-      if (!/^[0-9]{7}$/.test(num)) {
-        loginError.textContent = 'कर्मचारी संख्या ठीक 7 अंकों की होनी चाहिए। / Emp. Number must be exactly 7 digits.';
+      if (!organization) {
+        loginError.textContent = 'कृपया संगठन का नाम भरें। / Please enter the name of the organization.';
         loginError.style.display = 'block';
         return;
       }
@@ -768,10 +767,10 @@
       loginBtn.disabled = true;
       loginBtn.textContent = '⏳ चेक कर रहे हैं...';
 
-      fetchJSON(GAS_URL + '?action=checkRoll&_=' + Date.now() + '&rollNumber=' + encodeURIComponent(num))
+      fetchJSON(GAS_URL + '?action=checkRoll&_=' + Date.now() + '&mobile=' + encodeURIComponent(mobile))
         .then(function(result) {
-          if (result.exists) {
-            loginError.textContent = '❌ यह कर्मचारी संख्या पहले से जमा है / This Emp. Number has already been submitted (' + result.name + ')';
+          if (result.mobileExists) {
+            loginError.textContent = '❌ यह मोबाइल नंबर पहले से जमा है / This Mobile Number has already been submitted (' + result.mobileName + ')';
             loginError.style.display = 'block';
             loginBtn.disabled = false;
             loginBtn.textContent = '▶ शुरू करें';
@@ -789,7 +788,7 @@
               return;
             }
 
-            return startCrosswordOnServer(num, '').then(function(startRes) {
+            return startCrosswordOnServer('').then(function(startRes) {
               if (!startRes || !startRes.success) {
                 loginError.textContent = '❌ ' + (startRes && startRes.error ? startRes.error : 'शुरू नहीं हो सका');
                 loginError.style.display = 'block';
@@ -802,13 +801,13 @@
 
               userName = name;
               userDesignation = designation;
+              userOrganization = organization;
               userMobile = mobile;
-              userNumber = num;
               userModule = '';
               userOffice = '';
               userMotherTongue = '';
 
-              userBadge.innerHTML = '👤 ' + userName + ' (Emp: ' + userNumber + ')';
+              userBadge.innerHTML = '👤 ' + userName;
 
               currentGrid = buildEmptyGrid();
               isSubmitted = false;
@@ -841,7 +840,7 @@
 
     loginBtn.addEventListener('click', handleLogin);
     userNameInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') handleLogin(); });
-    userNumberInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') handleLogin(); });
+    userMobileInput.addEventListener('keydown', function(e) { if (e.key === 'Enter') handleLogin(); });
 
     submitBtn.addEventListener('click', function() { doSubmit(false); });
 
