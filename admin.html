@@ -164,16 +164,19 @@
     <table>
       <thead>
         <tr>
+                  <tr>
           <th class="rank-col">Rank</th>
           <th>Name</th>
           <th>Designation</th>
           <th>Organization</th>
+          <th>Mother Tongue</th>
           <th>Mobile</th>
           <th style="text-align:center;">Score</th>
           <th style="text-align:center;">Total</th>
           <th style="text-align:center;">%</th>
           <th>Duration</th>
           <th>Submitted At</th>
+        </tr>
         </tr>
       </thead>
       <tbody id="lbBody"></tbody>
@@ -269,7 +272,7 @@
 
       if (!rows.length) {
         var trEmpty = document.createElement('tr');
-        trEmpty.innerHTML = '<td colspan="10" class="msg">No participants yet.</td>';
+        trEmpty.innerHTML = '<td colspan="11" class="msg">No participants yet.</td>';
         tbody.appendChild(trEmpty);
         return;
       }
@@ -283,11 +286,12 @@
 
         var medal = rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
 
-        tr.innerHTML =
+               tr.innerHTML =
           '<td class="rank-col">' + rank + ' <span class="medal">' + medal + '</span></td>' +
           '<td>' + esc(r.name) + '</td>' +
           '<td>' + esc(r.designation) + '</td>' +
           '<td>' + esc(r.organization) + '</td>' +
+          '<td>' + esc(r.motherTongue) + '</td>' +
           '<td>' + esc(r.mobile) + '</td>' +
           '<td style="text-align:center;font-weight:700;color:#1e3a5f;">' + (r.score || 0) + '</td>' +
           '<td style="text-align:center;">' + (r.totalLetters || 0) + '</td>' +
