@@ -44,6 +44,7 @@
       border-color: #1e3a5f;
       box-shadow: 0 0 0 3px rgba(30,58,95,0.15);
     }
+    .form-group.hidden { display: none; }
     .btn-login {
       width: 100%;
       padding: 14px;
@@ -223,14 +224,24 @@
       <input type="text" id="userDesignation" placeholder="Designation">
     </div>
 
-       <div class="form-group">
+    <div class="form-group">
       <label for="userOrganization">संगठन का नाम / Name of the Organization *</label>
       <input type="text" id="userOrganization" placeholder="Name of the Organization">
     </div>
 
     <div class="form-group">
       <label for="userMotherTongue">मातृभाषा / Mother Tongue *</label>
-      <input type="text" id="userMotherTongue" placeholder="Mother Tongue">
+      <select id="userMotherTongue">
+        <option value="">-- Select / चुनें --</option>
+        <option value="Malayalam">Malayalam / मलयालम</option>
+        <option value="Hindi">Hindi / हिंदी</option>
+        <option value="Others">Others / अन्य</option>
+      </select>
+    </div>
+
+    <div class="form-group hidden" id="motherTongueOtherGroup">
+      <label for="userMotherTongueOther">कृपया मातृभाषा लिखें / Please specify *</label>
+      <input type="text" id="userMotherTongueOther" placeholder="Enter your mother tongue">
     </div>
 
     <div class="form-group">
@@ -274,7 +285,7 @@
 <script>
   (function() {
     // ===== YOUR GAS URL =====
-    const GAS_URL = 'https://script.google.com/macros/s/AKfycbyyU263GrJRz_zwC_8hl_FBqklyWEJiOAopOnrv6uc_pcQ7r75CsRXuq0v_fnt0LxyMrg/exec';
+    const GAS_URL = 'PASTE_YOUR_GAS_WEB_APP_URL_HERE';
 
     // ============================================
     // Robust fetch with retry & JSON check
@@ -350,7 +361,7 @@
     const ROWS = 7, COLS = 8;
 
     let currentGrid = [];
-        let userName = '', userDesignation = '', userOrganization = '', userMotherTongue = '', userMobile = '';
+    let userName = '', userDesignation = '', userOrganization = '', userMotherTongue = '', userMobile = '';
     let userModule = '', userOffice = '';
     let timerInterval = null;
     let timeSeconds = 1200;
@@ -373,7 +384,9 @@
     const userNameInput = document.getElementById('userName');
     const userDesignationInput = document.getElementById('userDesignation');
     const userOrganizationInput = document.getElementById('userOrganization');
-    const userMotherTongueInput = document.getElementById('userMotherTongue');
+    const userMotherTongueSelect = document.getElementById('userMotherTongue');
+    const userMotherTongueOtherGroup = document.getElementById('motherTongueOtherGroup');
+    const userMotherTongueOtherInput = document.getElementById('userMotherTongueOther');
     const userMobileInput = document.getElementById('userMobile');
     const loginError = document.getElementById('loginError');
     const loginBtn = document.getElementById('loginBtn');
@@ -384,6 +397,18 @@
     const downContainer = document.getElementById('downClues');
     const submitBtn = document.getElementById('submitBtn');
     const statusMsg = document.getElementById('statusMsg');
+
+    // ============================================
+    // Mother Tongue dropdown — show/hide "Other" input
+    // ============================================
+    userMotherTongueSelect.addEventListener('change', function() {
+      if (this.value === 'Others') {
+        userMotherTongueOtherGroup.classList.remove('hidden');
+      } else {
+        userMotherTongueOtherGroup.classList.add('hidden');
+        userMotherTongueOtherInput.value = '';
+      }
+    });
 
     // ============================================
     // Window / countdown utilities
@@ -746,7 +771,8 @@
       var name = userNameInput.value.trim();
       var designation = userDesignationInput.value.trim();
       var organization = userOrganizationInput.value.trim();
-      var motherTongue = userMotherTongueInput.value.trim();
+      var motherTongueChoice = userMotherTongueSelect.value;
+      var motherTongueOther = userMotherTongueOtherInput.value.trim();
       var mobile = userMobileInput.value.trim();
 
       if (!name) {
@@ -759,13 +785,18 @@
         loginError.style.display = 'block';
         return;
       }
-            if (!organization) {
+      if (!organization) {
         loginError.textContent = 'कृपया संगठन का नाम भरें। / Please enter the name of the organization.';
         loginError.style.display = 'block';
         return;
       }
-      if (!motherTongue) {
-        loginError.textContent = 'कृपया मातृभाषा भरें। / Please enter your mother tongue.';
+      if (!motherTongueChoice) {
+        loginError.textContent = 'कृपया मातृभाषा चुनें। / Please select your mother tongue.';
+        loginError.style.display = 'block';
+        return;
+      }
+      if (motherTongueChoice === 'Others' && !motherTongueOther) {
+        loginError.textContent = 'कृपया मातृभाषा लिखें। / Please specify your mother tongue.';
         loginError.style.display = 'block';
         return;
       }
@@ -774,6 +805,8 @@
         loginError.style.display = 'block';
         return;
       }
+
+      var motherTongueFinal = (motherTongueChoice === 'Others') ? motherTongueOther : motherTongueChoice;
 
       loginError.style.display = 'none';
       loginBtn.disabled = true;
@@ -814,10 +847,11 @@
               userName = name;
               userDesignation = designation;
               userOrganization = organization;
-              userMotherTongue = motherTongue;
+              userMotherTongue = motherTongueFinal;
               userMobile = mobile;
               userModule = '';
               userOffice = '';
+
               userBadge.innerHTML = '👤 ' + userName;
 
               currentGrid = buildEmptyGrid();
