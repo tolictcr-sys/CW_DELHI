@@ -246,11 +246,11 @@
   <div id="puzzlePage">
     <div class="header-row">
       <h1>🧩 शब्द पहेली</h1>
-      <span class="timer" id="timerDisplay">30:00</span>
+      <span class="timer" id="timerDisplay">20:00</span>
     </div>
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
       <span class="user-badge" id="userBadge">👤 </span>
-      <span style="font-size:12px; color:#4a5f76;">व्यक्तिगत · 30 मिनट</span>
+      <span style="font-size:12px; color:#4a5f76;">व्यक्तिगत · 20 मिनट</span>
     </div>
 
     <div id="closeWarning">⏰ <span id="closeWarningText"></span></div>
@@ -350,10 +350,10 @@
     const ROWS = 7, COLS = 8;
 
     let currentGrid = [];
-    let userName = '', userDesignation = '', userOrganization = '', userMobile = '';
-    let userModule = '', userOffice = '', userMotherTongue = '';
+        let userName = '', userDesignation = '', userOrganization = '', userMotherTongue = '', userMobile = '';
+    let userModule = '', userOffice = '';
     let timerInterval = null;
-    let timeSeconds = 1800;
+    let timeSeconds = 1200;
     let isSubmitted = false, isTimerEnded = false;
 
     let crosswordStartTime = null;
@@ -373,6 +373,7 @@
     const userNameInput = document.getElementById('userName');
     const userDesignationInput = document.getElementById('userDesignation');
     const userOrganizationInput = document.getElementById('userOrganization');
+    const userMotherTongueInput = document.getElementById('userMotherTongue');
     const userMobileInput = document.getElementById('userMobile');
     const loginError = document.getElementById('loginError');
     const loginBtn = document.getElementById('loginBtn');
@@ -627,7 +628,7 @@
 
     function startTimer() {
       if (timerInterval) clearInterval(timerInterval);
-      timeSeconds = 1800;
+      timeSeconds = 1200;
       updateTimerDisplay();
       timerInterval = setInterval(function() {
         timeSeconds--;
@@ -657,7 +658,7 @@
     }
 
     function getElapsedTime() {
-      return 1800 - timeSeconds;
+      return 1200 - timeSeconds;
     }
 
     function autoSubmit() {
@@ -745,6 +746,7 @@
       var name = userNameInput.value.trim();
       var designation = userDesignationInput.value.trim();
       var organization = userOrganizationInput.value.trim();
+      var motherTongue = userMotherTongueInput.value.trim();
       var mobile = userMobileInput.value.trim();
 
       if (!name) {
@@ -757,8 +759,13 @@
         loginError.style.display = 'block';
         return;
       }
-      if (!organization) {
+            if (!organization) {
         loginError.textContent = 'कृपया संगठन का नाम भरें। / Please enter the name of the organization.';
+        loginError.style.display = 'block';
+        return;
+      }
+      if (!motherTongue) {
+        loginError.textContent = 'कृपया मातृभाषा भरें। / Please enter your mother tongue.';
         loginError.style.display = 'block';
         return;
       }
@@ -807,11 +814,10 @@
               userName = name;
               userDesignation = designation;
               userOrganization = organization;
+              userMotherTongue = motherTongue;
               userMobile = mobile;
               userModule = '';
               userOffice = '';
-              userMotherTongue = '';
-
               userBadge.innerHTML = '👤 ' + userName;
 
               currentGrid = buildEmptyGrid();
